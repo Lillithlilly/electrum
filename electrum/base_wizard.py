@@ -658,7 +658,7 @@ class BaseWizard(Logger):
             self.data['keystore'] = keys
         elif self.wallet_type == 'multisig':
             for i, k in enumerate(self.keystores):
-                self.data['x%d/'%(i+1)] = k.dump()
+                self.data['x%d'%(i+1)] = k.dump()
         elif self.wallet_type == 'imported':
             if len(self.keystores) > 0:
                 keys = self.keystores[0].dump()
