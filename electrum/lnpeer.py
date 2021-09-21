@@ -761,7 +761,8 @@ class Peer(Logger):
             "revocation_store": {},
             "static_remotekey_enabled": self.is_static_remotekey(), # stored because it cannot be "downgraded", per BOLT2
         }
-        return StoredDict(chan_dict, self.lnworker.db if self.lnworker else None, [])
+        # set db to None, because we do not want to write updates until channel is saved
+        return StoredDict(chan_dict, None, [])
 
     async def on_open_channel(self, payload):
         """Implements the channel acceptance flow.
