@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import attr
 
-from .json_db import StoredObject
+from .json_db import StoredObject, stored_in
 from .i18n import _
 from .util import age, InvoiceError
 from .lnaddr import lndecode, LnAddr
@@ -102,14 +102,16 @@ class Invoice(StoredObject):
         """Returns a decimal satoshi amount, or '!' or None."""
         raise NotImplementedError()
 
-    @classmethod
-    def from_json(cls, x: dict) -> 'Invoice':
-        # note: these raise if x has extra fields
-        if x.get('type') == PR_TYPE_LN:
-            return LNInvoice(**x)
-        else:
-            return OnchainInvoice(**x)
-
+# Note: polymorphism forces us to register this constructor with json_db
+# To avoid this, we could use upgrade the wallet to use separate dicts
+@stored_in('invoices')
+@stored_in('payment_requests')
+def invoice_from_storage(**x) -> 'Invoice':
+    # note: these raise if x has extra fields
+    if x.get('type') == PR_TYPE_LN:
+        return LNInvoice(**x)
+    else:
+        return OnchainInvoice(**x)
 
 @attr.s
 class OnchainInvoice(Invoice):
